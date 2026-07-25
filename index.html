@@ -2131,15 +2131,7 @@
                 gap: 6px !important;
                 min-width: 80px !important;
             }
-		   .ranking-card {
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-           }
-           .ranking-card:hover {
-               transform: translateY(-3px);
-               box-shadow: 0 8px 30px rgba(0,0,0,0.25);
         }
-        }
-		
     </style>
 </head>
 <body class="default-bg">
@@ -5102,17 +5094,23 @@
             }
             html += '</tbody></table>'; container.innerHTML = html;
         }
+
         function updateAllRankings() {
             updateTeamRanking();
             updateTopScorersRanking();
             updateAverageRanking();
+            // RIMOSSA chiamata a updateGeneralRanking()
             updateGoalkeepersStatsRanking();
             updateAssistsRanking();
             updateMVPRanking();
             updateBestGoalkeeperRanking();
             updateStatistics();
         }
-                function updateStatistics() {
+
+        // ============================================================
+        // 27. STATISTICHE
+        // ============================================================
+              function updateStatistics() {
             let totalGoals = 0, totalAssists = 0;
             for (let m of matches) {
                 totalGoals += m.goalsA + m.goalsB;
@@ -5128,22 +5126,23 @@
                 <div class="stat-card"><div class="stat-number">${totalAssists}</div><div class="stat-label">Assist</div></div>
             `;
             
-            // Trova i migliori
-            let bestScorer = { goals: 0, name: '---', photo: null, isGoalkeeper: false };
-            let bestAssist = { assists: 0, name: '---', photo: null, isGoalkeeper: false };
-            let bestMVP = { mvp: 0, name: '---', photo: null, isGoalkeeper: false };
-            let bestGK = { gk: 0, name: '---', photo: null, isGoalkeeper: true };
+            // ============================================================
+            // PRIMI IN CLASSIFICA - 5 card impilate
+            // ============================================================
             
+            // 1. Miglior Marcatore
+            let bestScorer = { goals: 0, name: '---', photo: null, isGoalkeeper: false };
+            for (let p of players) {
+                if (p.goalsScored > bestScorer.goals) {
+                    bestScorer = { goals: p.goalsScored, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
+                }
+            }
+            
+            // 2. Top Player Media Punti (min 40% partite)
             const totalMatches = matches.length;
             const minMatchesRequired = Math.ceil(totalMatches * 0.4);
             let bestAverage = { average: 0, name: '---', photo: null, isGoalkeeper: false, points: 0, matches: 0 };
-            
             for (let p of players) {
-                if (p.goalsScored > bestScorer.goals) bestScorer = { goals: p.goalsScored, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
-                if (p.assists > bestAssist.assists) bestAssist = { assists: p.assists, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
-                if (p.mvpAwards > bestMVP.mvp) bestMVP = { mvp: p.mvpAwards, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
-                if (p.isGoalkeeper && p.bestGoalkeeperAwards > bestGK.gk) bestGK = { gk: p.bestGoalkeeperAwards, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
-                
                 if (p.matchesPlayed >= minMatchesRequired) {
                     const points = p.wins * 3 + p.draws;
                     const avg = p.matchesPlayed > 0 ? (points / p.matchesPlayed) : 0;
@@ -5153,7 +5152,75 @@
                 }
             }
             
+            // 3. Miglior Assistman
+            let bestAssist = { assists: 0, name: '---', photo: null, isGoalkeeper: false };
+            for (let p of players) {
+                if (p.assists > bestAssist.assists) {
+                    bestAssist = { assists: p.assists, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
+                }
+            }
             
+            // 4. Miglior MVP
+            let bestMVP = { mvp: 0, name: '---', photo: null, isGoalkeeper: false };
+            for (let p of players) {
+                if (p.mvpAwards > bestMVP.mvp) {
+                    bestMVP = { mvp: p.mvpAwards, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
+                }
+            }
+            
+            // 5. Miglior Portiere
+            let bestGK = { gk: 0, name: '---', photo: null, isGoalkeeper: true };
+            for (let p of players) {
+                if (p.isGoalkeeper && p.bestGoalkeeperAwards > bestGK.gk) {
+                    bestGK = { gk: p.bestGoalkeeperAwards, name: p.name, photo: p.photo, isGoalkeeper: p.isGoalkeeper };
+                }
+            }
+            
+            // Funzione per generare l'avatar del giocatore (versione piccola per le card compatte)
+            function getSmallPlayerAvatar(player) {
+                if (!player || player.name === '---') return '';
+                const size = 40;
+                if (player.photo) {
+                    return `<img src="${player.photo}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;border:2px solid white;flex-shrink:0;">`;
+                } else {
+                    return `<div style="width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2ecc71,#27ae60);color:white;font-size:18px;flex-shrink:0;border:2px solid white;"><i class="fas fa-user"></i></div>`;
+                }
+            }
+            
+            function getRankingRow(icon, label, player, statText) {
+                if (!player || player.name === '---') {
+                    return `<div class="stat-card" style="padding:12px 18px; min-height:50px; flex-direction:row; justify-content:flex-start; gap:12px; text-align:left;">
+                        <span style="font-size:1.2em;">${icon}</span>
+                        <span style="font-weight:600; flex:1;">${label}</span>
+                        <span style="opacity:0.6;">—</span>
+                    </div>`;
+                }
+                const avatarHtml = getSmallPlayerAvatar(player);
+                return `<div class="stat-card" style="padding:12px 18px; min-height:50px; flex-direction:row; justify-content:flex-start; gap:12px; text-align:left;">
+                    <span style="font-size:1.2em;">${icon}</span>
+                    <span style="font-weight:600; flex:1;">${label}</span>
+                    ${avatarHtml}
+                    <span style="font-weight:700;">${escapeHtml(player.name)}</span>
+                    <span style="opacity:0.8; font-size:0.85em;">${statText}</span>
+                </div>`;
+            }
+            
+            const avgText = bestAverage.average > 0 
+                ? `${bestAverage.average.toFixed(2)} pt/partita (${bestAverage.points} pt in ${bestAverage.matches} partite) - Min. ${minMatchesRequired}/${totalMatches} partite`
+                : '';
+            
+            const container = document.getElementById('topRankings');
+            if (container) {
+                container.innerHTML = `
+                    ${getRankingRow('⚽', 'Miglior Marcatore', bestScorer, `${bestScorer.goals} gol`)}
+                    ${getRankingRow('📊', 'Top Player Media Punti', bestAverage, avgText)}
+                    ${getRankingRow('🎯', 'Miglior Assistman', bestAssist, `${bestAssist.assists} assist`)}
+                    ${getRankingRow('⭐', 'Miglior MVP', bestMVP, `${bestMVP.mvp} MVP`)}
+                    ${getRankingRow('🧤', 'Miglior Portiere', bestGK, `${bestGK.gk} premi`)}
+                `;
+            }
+        }
+
         // ============================================================
         // 28. FUNZIONI UTILITY
         // ============================================================
@@ -5196,7 +5263,7 @@
             updatePlayersList();
             updateMatchesList();
             updateAllRankings();
-            updateStatistics();
+            updatePrimoClassifica();
         }
 
         // ============================================================
