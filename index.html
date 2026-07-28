@@ -1489,6 +1489,58 @@ button:disabled { opacity: 0.4; transform: none; cursor: not-allowed; box-shadow
         align-items: baseline !important;
         gap: 4px !important;
     }
+	
+    .match-detail-box > div[style*="grid-template-columns:1fr 1fr"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    .match-detail-box .team-formation-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: center !important;
+        align-items: center !important;
+        padding: 12px 15px !important;
+    }
+    
+    .match-detail-box .team-formation-container .formation-title {
+        text-align: center !important;
+        font-size: 0.9em !important;
+    }
+    
+    .match-detail-box .team-formation-container .player-tag {
+        font-size: 0.8em !important;
+        padding: 4px 12px !important;
+        margin: 3px 4px !important;
+        display: inline-block !important;
+    }
+    
+    /* Badge goal centrati */
+    .match-detail-box .match-goals-list {
+        text-align: center !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 4px !important;
+    }
+    
+    .match-detail-box .goal-badge,
+    .match-detail-box .own-goal-badge {
+        font-size: 0.8em !important;
+        padding: 3px 10px !important;
+        margin: 2px 4px !important;
+        text-align: center !important;
+    }
+    
+    /* Titolo "Formazioni" centrato */
+    .match-detail-box .formations-title {
+        text-align: center !important;
+        font-size: 0.95em !important;
+    }
+
     .match-detail-box > div:first-child > div strong { white-space: nowrap !important; }
     .match-detail-box > div:first-child > div span { word-break: break-word !important; display: inline !important; }
     
