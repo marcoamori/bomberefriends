@@ -7740,5 +7740,75 @@ clone.appendChild(footer);
 
         init();
     </script>
+	    <!-- ============================================================ -->
+    <!-- INSTALLA APP - UN CLICK! -->
+    <!-- ============================================================ -->
+
+    <div id="installBanner" style="display:none; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; padding: 12px 16px; border-radius: 16px; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; z-index: 9999; box-shadow: 0 4px 15px rgba(46,204,113,0.3); align-items: center; justify-content: space-between; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-mobile-alt" style="font-size: 22px;"></i>
+            <div>
+                <strong style="font-size: 0.95em;">Bomber & Friends</strong>
+                <div style="font-size: 0.7em; opacity: 0.8;">Aggiungi alla home</div>
+            </div>
+        </div>
+        <button id="installAppBtn" style="background: white; color: #1a472a; border: none; padding: 8px 18px; border-radius: 30px; font-weight: 700; font-size: 0.85em; cursor: pointer; white-space: nowrap;">
+            <i class="fas fa-plus"></i> Installa
+        </button>
+    </div>
+
+    <script>
+    // ============================================================
+    // INSTALLA APP
+    // ============================================================
+
+    let deferredPrompt = null;
+    const isAppInstalled = window.matchMedia('(display-mode: standalone)').matches;
+
+    if (!isAppInstalled) {
+        const banner = document.getElementById('installBanner');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (banner) banner.style.display = 'flex';
+        });
+        
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+            setTimeout(() => { if (banner) banner.style.display = 'flex'; }, 2000);
+        }
+        
+        setTimeout(() => {
+            if (banner && banner.style.display !== 'flex' && !isAppInstalled) {
+                banner.style.display = 'flex';
+            }
+        }, 3000);
+    }
+
+    document.getElementById('installAppBtn')?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const result = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            if (result.outcome === 'accepted') {
+                document.getElementById('installBanner').style.display = 'none';
+                alert('✅ App installata! Ora la trovi nella home.');
+            }
+        } else {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            if (isIOS) {
+                alert('📱 Per aggiungere alla home:\n\n1. Tocca "Condividi" 📤\n2. "Aggiungi alla Home"\n3. "Aggiungi" ✅');
+            } else {
+                alert('📱 Usa il menu browser → "Aggiungi alla schermata Home"');
+            }
+        }
+    });
+
+    if (isAppInstalled) {
+        const banner = document.getElementById('installBanner');
+        if (banner) banner.style.display = 'none';
+    }
+    </script>
 </body>
 </html>
