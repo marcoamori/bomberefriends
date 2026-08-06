@@ -2059,6 +2059,12 @@ button:disabled { opacity: 0.4; transform: none; cursor: not-allowed; box-shadow
         .share-menu-overlay.active {
             display: block !important;
         }
+		/* ============================================================
+       NASCONDI FOOTER DURANTE IL RITAGLIO FOTO
+       ============================================================ */
+    body:has(#cropModal[style*="display: flex"]) .app-footer,
+    body:has(#cropLogoModal[style*="display: flex"]) .app-footer {
+        display: none !important;
     }
     </style>
 </head>
